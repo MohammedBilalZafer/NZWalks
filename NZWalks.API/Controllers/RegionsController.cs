@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using NZWalks.API.Repositories;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using System.Text.Json;
 
 namespace NZWalks.API.Controllers
 {
@@ -18,24 +19,28 @@ namespace NZWalks.API.Controllers
         private readonly NZWalksDbContext dbContext;
         private readonly IRegionRepository regionRepository;
         private readonly IMapper mapper;
+        private readonly ILogger<RegionsController> logger;
 
-        public RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository, IMapper mapper)
+        public RegionsController(NZWalksDbContext dbContext, IRegionRepository regionRepository, IMapper mapper, 
+            ILogger<RegionsController> logger)
         {
             this.dbContext = dbContext;
             this.regionRepository = regionRepository;
             this.mapper = mapper;
+            this.logger = logger;
         }
 
         [HttpGet]
-        [Authorize(Roles = "Reader")]
+        //[Authorize(Roles = "Reader")]
         public async Task<IActionResult> GetAll()
         {
+            
             //Get data from Database
             var regionsDomain = await regionRepository.GetAllAsync();
 
-            //Map Domain models to DTOs
-            
-            //Show DTOs
+            logger.LogInformation($"Finished the GetAll Regions Request with data: {JsonSerializer.Serialize(regionsDomain)}");
+
+                //Show DTOs
             return Ok(mapper.Map<List<RegionDto>>(regionsDomain));
         }
 
